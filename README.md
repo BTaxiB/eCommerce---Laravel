@@ -1,6 +1,7 @@
 # HOW TO INSTALL
  - run composer install
  - create database and setup in the .env file
+ - php artisan key:generate
  
 # Generate data
  - run php artisan migrate:fresh --seed 
