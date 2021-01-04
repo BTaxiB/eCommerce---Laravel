@@ -9,7 +9,6 @@
 
     hr {
         width: 50%;
-        padding-bottom: ;
         margin: 0 auto 5px auto !important;
     }
 
@@ -47,7 +46,7 @@
         </div>
         @endif
         <hr>
-        
+
         @if(count($item->stores) > 0)
         <div class="row">
             In Stores: <br>

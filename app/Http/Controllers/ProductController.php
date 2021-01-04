@@ -136,7 +136,6 @@ class ProductController extends Controller
                 $url = new Url;
                 $url->name = $request->input('product_url');
                 $product->url()->save($url);
-                dd($url);
             }
         }
 
