@@ -44,6 +44,7 @@ class ProductController extends Controller
             'name' => 'required|max:200',
             'description' => 'max:500',
             'price' => 'required',
+            'product_url' => 'unique:urls'
         ]);
 
         $product = new Product;
