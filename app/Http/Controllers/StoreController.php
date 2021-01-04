@@ -22,13 +22,26 @@ class StoreController extends Controller
     }
 
     /**
+     * Show the profile for a given user.
+     *
+     * @param  int  $id
+     * @return \Illuminate\View\View
+     */
+    public function show($id)
+    {
+        $item = Store::findOrFail($id);
+
+        return view('stores.show', compact('item'));
+    }
+
+    /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function create()
     {
-        return view('store.create');
+        return view('stores.create');
     }
 
     /**
@@ -53,7 +66,9 @@ class StoreController extends Controller
 
         $store->save();
 
-        return view('/stores');
+        $items = Store::all();
+
+        return view('stores.index', compact('items'));
     }
 
     /**
@@ -79,30 +94,29 @@ class StoreController extends Controller
     public function update(Request $request, int $id)
     {
         $request->validate([
-            'name' => 'unique:App\Models\Store|max:200',
-            'website_url' => 'unique:App\Models\Store',
-            'code' => 'unique:App\Models\Store',
+            'name' => 'max:200',
         ]);
 
         $store = Store::findOrFail($id);
 
-        if ($store) {
-            if ($request->hasInput('name')) {
-                $store->name = validInput($request->input('name'));
-            }
-
-            if ($request->hasInput('website_url')) {
-                $store->website_url = $request->input('website_url');
-            }
-
-            if ($request->hasInput('code')) {
-                $store->code = $request->input('code');
-            }
-
-            $store->save();
-
-            return view('/stores');
+        // if ($store) {
+        if ($request->input('name')) {
+            $store->name = validInput($request->input('name'));
         }
+
+        if ($request->input('website_url')) {
+            $store->website_url = $request->input('website_url');
+        }
+
+        if ($request->input('code')) {
+            $store->code = $request->input('code');
+        }
+
+        $store->save();
+
+        $items = Store::all();
+        return view('stores.index', compact('items'));
+        // }
     }
 
     /**
@@ -116,6 +130,7 @@ class StoreController extends Controller
         $store = Store::findOrFail($id);
         $store->delete();
 
-        return redirect('stores.index');
+        $items = Store::all();
+        return view('stores.index', compact('items'));
     }
 }

@@ -43,7 +43,9 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        echo "wrong route";
+        $item = Product::findOrFail($id);
+
+        return view('products.show', compact('item'));
     }
 
     /**
@@ -119,52 +121,54 @@ class ProductController extends Controller
         ]);
 
         $product = Product::findOrFail($id);
-        $product->name          = validInput($request->input('name'));
-        $product->description   = validInput($request->input('description'));
-        $product->price         = floatval($request->input('price'));
-        $product->update(
-            [
-                'name' => validInput($request->input('name')),
-                'description' => validInput($request->input('description')),
-                'price' => floatval($request->input('price'))
-            ]
-        );
+        if ($product) {
+            $product->name          = validInput($request->input('name'));
+            $product->description   = validInput($request->input('description'));
+            $product->price         = floatval($request->input('price'));
+            $product->update(
+                [
+                    'name' => validInput($request->input('name')),
+                    'description' => validInput($request->input('description')),
+                    'price' => floatval($request->input('price'))
+                ]
+            );
 
-        //Storing URL
-        if (!empty($request->input('product_url'))) {
-            if (checkUrl($request->input('product_url'))) {
-                $url = new Url;
-                $url->name = $request->input('product_url');
-                $product->url()->save($url);
+            //Storing URL
+            if (!empty($request->input('product_url'))) {
+                if (checkUrl($request->input('product_url'))) {
+                    $url = new Url;
+                    $url->name = $request->input('product_url');
+                    $product->url()->save($url);
+                }
             }
-        }
 
-        if ($request->input('store') > 0) {
-            foreach ($request->input('store') as $store) {
-                $circuit = new StoreCircuit;
-                $circuit->product_id = $product->id;
-                $circuit->store_id = $store;
-                $circuit->save();
+            if ($request->input('store') > 0) {
+                foreach ($request->input('store') as $store) {
+                    $circuit = new StoreCircuit;
+                    $circuit->product_id = $product->id;
+                    $circuit->store_id = $store;
+                    $circuit->save();
+                }
             }
+
+            //format selected option, extract store_id
+            // $storeId = getStringBetween($request->input('store'), "x", "y");
+            // $storeId = ($request->input('store') > 0) ? $request->input('store') : $product->stores;
+
+            // // dd($storeId);
+            // if ($storeId > 0) {
+            //     $circuit = StoreCircuit::where('store_id', $storeId)->where('product_id', $product->id)->first();
+            //     // dd($circuit);
+            //     $circuit->update([
+            //         'product_id' => $product->id,
+            //         'store_id' => $storeId
+            //     ]);
+            // }
+
+
+            $items = Product::all();
+            return view("products.index", compact('items'));
         }
-
-        //format selected option, extract store_id
-        // $storeId = getStringBetween($request->input('store'), "x", "y");
-        $storeId = ($request->input('store') > 0) ? $request->input('store') : $product->stores;
-
-        // dd($storeId);
-        if ($storeId > 0) {
-            $circuit = StoreCircuit::where('store_id', $storeId)->where('product_id', $product->id)->first();
-            // dd($circuit);
-            $circuit->update([
-                'product_id' => $product->id,
-                'store_id' => $storeId
-            ]);
-        }
-
-
-        $items = Product::all();
-        return view("products.index", compact('items'));
     }
 
     /**
