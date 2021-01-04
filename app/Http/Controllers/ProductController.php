@@ -44,7 +44,6 @@ class ProductController extends Controller
             'name' => 'required|max:200',
             'description' => 'max:500',
             'price' => 'required',
-            'url' => 'exists:App\Models\Url,id'
         ]);
 
         $product = new Product;
