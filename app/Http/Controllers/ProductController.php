@@ -44,8 +44,9 @@ class ProductController extends Controller
             'name' => 'required|max:200',
             'description' => 'max:500',
             'price' => 'required',
-            'product_url' => 'unique:urls'
+            'product_url' => 'unique:App\Models\Url,name'
         ]);
+
 
         $product = new Product;
         $product->name          = validInput($request->input('name'));
