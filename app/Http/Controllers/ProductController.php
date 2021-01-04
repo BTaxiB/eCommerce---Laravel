@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\StoreCircuit;
 use App\Models\Url;
+use App\Models\Store;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -16,9 +17,10 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $item = Product::all();
+        $items = Product::all();
+        // dd($items);
 
-        return view('/products', compact('item'));
+        return view('products.index', compact('items', $items));
     }
 
     /**
@@ -28,7 +30,20 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return view('products.create');
+        $stores = Store::all();
+
+        return view('products.create', compact('stores'));
+    }
+
+    /**
+     * Show the profile for a given user.
+     *
+     * @param  int  $id
+     * @return \Illuminate\View\View
+     */
+    public function show($id)
+    {
+        echo "wrong route";
     }
 
     /**
@@ -39,14 +54,13 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-
+        // dd($request);
         $this->validate($request, [
             'name' => 'required|max:200',
             'description' => 'max:500',
             'price' => 'required',
             'product_url' => 'unique:App\Models\Url,name'
         ]);
-
 
         $product = new Product;
         $product->name          = validInput($request->input('name'));
@@ -55,21 +69,25 @@ class ProductController extends Controller
         $product->save();
 
         //Storing URL
-        if (checkUrl($request->input('product_url'))) {
-            $url = new Url;
-            $url->name = $request->input('product_url');
-            $product->url()->save($url);
+        if (!empty($request->input('product_url'))) {
+            if (checkUrl($request->input('product_url'))) {
+                $url = new Url;
+                $url->name = $request->input('product_url');
+                $product->url()->save($url);
+            }
         }
 
         //format selected option, extract store_id
-        $storeId = getStringBetween($request->input('store'), "y", "z");
-
-        $circuit = new StoreCircuit;
-        $circuit->product_id = $product->id;
-        $circuit->store_id = $storeId;
-        $circuit->save();
-
-        return view("/products");
+        if ($request->input('store') > 0) {
+            foreach ($request->input('store') as $store) {
+                $circuit = new StoreCircuit;
+                $circuit->product_id = $product->id;
+                $circuit->store_id = $store;
+                $circuit->save();
+            }
+        }
+        $items = Product::all();
+        return view("products.index", compact('items'));
     }
 
     /**
@@ -81,8 +99,9 @@ class ProductController extends Controller
     public function edit(int $id)
     {
         $item = Product::findOrFail($id);
+        $stores = Store::all();
 
-        return view("products.edit", compact('item'));
+        return view("products.edit", compact('item', 'stores'));
     }
 
     /**
@@ -94,7 +113,59 @@ class ProductController extends Controller
      */
     public function update(Request $request, int $id)
     {
-        //
+        $this->validate($request, [
+            'name' => 'max:200',
+            'description' => 'max:500',
+        ]);
+
+        $product = Product::findOrFail($id);
+        $product->name          = validInput($request->input('name'));
+        $product->description   = validInput($request->input('description'));
+        $product->price         = floatval($request->input('price'));
+        $product->update(
+            [
+                'name' => validInput($request->input('name')),
+                'description' => validInput($request->input('description')),
+                'price' => floatval($request->input('price'))
+            ]
+        );
+
+        //Storing URL
+        if (!empty($request->input('product_url'))) {
+            if (checkUrl($request->input('product_url'))) {
+                $url = new Url;
+                $url->name = $request->input('product_url');
+                $product->url()->save($url);
+                dd($url);
+            }
+        }
+
+        if ($request->input('store') > 0) {
+            foreach ($request->input('store') as $store) {
+                $circuit = new StoreCircuit;
+                $circuit->product_id = $product->id;
+                $circuit->store_id = $store;
+                $circuit->save();
+            }
+        }
+
+        //format selected option, extract store_id
+        // $storeId = getStringBetween($request->input('store'), "x", "y");
+        $storeId = ($request->input('store') > 0) ? $request->input('store') : $product->stores;
+
+        // dd($storeId);
+        if ($storeId > 0) {
+            $circuit = StoreCircuit::where('store_id', $storeId)->where('product_id', $product->id)->first();
+            // dd($circuit);
+            $circuit->update([
+                'product_id' => $product->id,
+                'store_id' => $storeId
+            ]);
+        }
+
+
+        $items = Product::all();
+        return view("products.index", compact('items'));
     }
 
     /**
@@ -108,6 +179,7 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         $product->delete();
 
-        return view('/products');
+        $items = Product::all();
+        return view("products.index", compact('items'));
     }
 }

@@ -24,7 +24,7 @@ class ProductFactory extends Factory
     {
         return [
             'name' => Str::random(5) . rand(15, 55) . " PRODUCT",
-            'description' => Str::random(200),
+            'description' => Str::random(50),
             'price' => rand(0, 10) . rand(0, 3),
         ];
     }

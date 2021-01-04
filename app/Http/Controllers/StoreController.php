@@ -16,9 +16,9 @@ class StoreController extends Controller
      */
     public function index()
     {
-        $item = Store::all();
+        $items = Store::all();
 
-        return view('/stores', compact('item'));
+        return view('stores.index', compact('items'));
     }
 
     /**
@@ -116,6 +116,6 @@ class StoreController extends Controller
         $store = Store::findOrFail($id);
         $store->delete();
 
-        return redirect('/stores');
+        return redirect('stores.index');
     }
 }
