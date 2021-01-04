@@ -19,7 +19,7 @@ class ProductObserver
     public function created(Product $product, Request $request)
     {
         $storeId = getStringBetween($request->input('store'), "y", "z");
-        $check = Store::find($storeId)->products->first()->url;
+        $check = Store::find($storeId)->products->find($product->id)->url;
 
         if ($check !== null) {
             $url = new Url;
