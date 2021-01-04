@@ -1,5 +1,6 @@
 # HOW TO INSTALL
  - run composer install
+ - create database and setup in the .env file
  
 # Generate data
  - run php artisan migrate to generate tables
