@@ -16,14 +16,11 @@ class ProductObserver
      * @param  \App\Models\Product  $product
      * @return void
      */
-    public function created(Product $product, Request $request)
+    public function created(Product $product)
     {
-        $storeId = getStringBetween($request->input('store'), "y", "z");
-        $check = Store::find($storeId)->products->find($product->id)->url;
-
-        if ($check !== null) {
+        if (empty($product->url)) {
             $url = new Url;
-            $url->name = $product->name . $storeId . "data" . time();
+            $url->name = $product->name . rand(100, 999) . "data" . time();
             $product->url()->save($url);
         }
     }
