@@ -39,7 +39,7 @@ class StoreController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $this->validate($request, [
             'name' => 'required|unique:App\Models\Store|max:200',
             'website_url' => 'required|unique:App\Models\Store',
             'code' => 'required|unique:App\Models\Store',
