@@ -46,7 +46,7 @@ class StoreController extends Controller
         ]);
 
 
-        $store              = new Store;
+        $store = new Store;
         $store->name        = validInput($request->input('name'));
         $store->website_url = $request->input('website_url');
         $store->code        = $request->input('code');
