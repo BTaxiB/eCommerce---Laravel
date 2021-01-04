@@ -3,6 +3,10 @@
 namespace App\Observers;
 
 use App\Models\Product;
+use App\Models\Url;
+use App\Models\StoreCircuit;
+use App\Models\Store;
+use Illuminate\Http\Request;
 
 class ProductObserver
 {
@@ -12,20 +16,16 @@ class ProductObserver
      * @param  \App\Models\Product  $product
      * @return void
      */
-    public function created(Product $product)
+    public function created(Product $product, Request $request)
     {
-        //
-    }
+        $storeId = getStringBetween($request->input('store'), "y", "z");
+        $check = Store::find($storeId)->products->first()->url;
 
-    /**
-     * Handle the Product "updated" event.
-     *
-     * @param  \App\Models\Product  $product
-     * @return void
-     */
-    public function updated(Product $product)
-    {
-        //
+        if ($check !== null) {
+            $url = new Url;
+            $url->name = $product->name . $storeId . "data" . time();
+            $product->url()->save($url);
+        }
     }
 
     /**
@@ -36,28 +36,6 @@ class ProductObserver
      */
     public function deleted(Product $product)
     {
-        //
-    }
-
-    /**
-     * Handle the Product "restored" event.
-     *
-     * @param  \App\Models\Product  $product
-     * @return void
-     */
-    public function restored(Product $product)
-    {
-        //
-    }
-
-    /**
-     * Handle the Product "force deleted" event.
-     *
-     * @param  \App\Models\Product  $product
-     * @return void
-     */
-    public function forceDeleted(Product $product)
-    {
-        //
+        $product->url()->delete();
     }
 }
